@@ -45,6 +45,7 @@ module.exports = (env) => {
             name: parsedEnv.NAME,
             url: `${parsedEnv.DOMAIN}:${parsedEnv.PORT}`,
             component: parsedEnv.COMPONENT,
+            backendUrl: parsedEnv.BACKEND_URL,
           }).replace(/"/g, '\\"');
           execSync(
             `curl -X POST -H "Content-Type: application/json" -d "${body}" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/start`,

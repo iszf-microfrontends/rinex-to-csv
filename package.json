@@ -41,6 +41,7 @@
     "html-webpack-plugin": "^5.5.3",
     "prettier": "^2.8.8",
     "react-refresh": "^0.14.0",
+    "react-refresh-typescript": "^2.0.9",
     "ts-loader": "^9.4.3",
     "typescript": "^5.1.3",
     "webpack": "^5.88.0",
@@ -51,9 +52,11 @@
     "@emotion/react": "^11.11.1",
     "@mantine/core": "^6.0.14",
     "@mantine/hooks": "^6.0.14",
+    "@tabler/icons-react": "^2.23.0",
     "compose-function": "^3.0.3",
     "effector": "^22.8.6",
     "effector-react": "^22.5.3",
+    "patronum": "^1.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

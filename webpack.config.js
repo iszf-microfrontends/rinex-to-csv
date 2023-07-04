@@ -1,21 +1,19 @@
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshTypeScript = require('react-refresh-typescript');
 const path = require('path');
-const { dependencies: deps } = require('./package.json');
-const { execSync } = require('child_process');
 const dotenv = require('dotenv');
-
-const resolveRoot = (...segments) => path.resolve(__dirname, ...segments);
+const { dependencies } = require('./package.json');
+const { execSync } = require('child_process');
 
 const defaultEnvFile = dotenv.config();
 
 module.exports = (env) => {
   const isDev = !!env.dev;
 
-  const modeEnvFile = dotenv.config({
-    path: resolveRoot(`.env.${isDev ? 'dev' : 'prod'}`),
-  });
+  const modeEnvFile = dotenv.config({ path: resolveRoot(`.env.${isDev ? 'dev' : 'prod'}`) });
   const parsedEnv = { ...defaultEnvFile.parsed, ...modeEnvFile.parsed };
 
   const babelOptions = {
@@ -23,18 +21,24 @@ module.exports = (env) => {
     plugins: ['@babel/plugin-transform-runtime', '@emotion', isDev && 'react-refresh/babel', 'effector/babel-plugin'].filter(Boolean),
   };
 
+  const devPlugins = [];
+  if (isDev) {
+    devPlugins.push(new ReactRefreshWebpackPlugin());
+  }
+
   return {
+    entry: resolveRoot('src/index'),
     mode: isDev ? 'development' : 'production',
     devtool: isDev && 'inline-source-map',
     output: {
+      publicPath: 'auto',
       clean: true,
     },
     devServer: {
-      static: {
-        directory: resolveRoot('dist'),
-      },
-      historyApiFallback: true,
       port: parsedEnv.PORT,
+      static: resolveRoot('dist'),
+      hot: true,
+      liveReload: false,
       onListening: (devServer) => {
         if (!devServer) {
           throw new Error('webpack-dev-server is not defined');
@@ -44,6 +48,7 @@ module.exports = (env) => {
           const body = JSON.stringify({
             name: parsedEnv.NAME,
             url: `${parsedEnv.DOMAIN}:${parsedEnv.PORT}`,
+            scope: parsedEnv.SCOPE,
             component: parsedEnv.COMPONENT,
             backendUrl: parsedEnv.BACKEND_URL,
           }).replace(/"/g, '\\"');
@@ -83,6 +88,12 @@ module.exports = (env) => {
           use: [
             {
               loader: 'ts-loader',
+              options: {
+                getCustomTransformers: () => ({
+                  before: [isDev && ReactRefreshTypeScript()].filter(Boolean),
+                }),
+                transpileOnly: isDev,
+              },
             },
           ],
         },
@@ -91,26 +102,24 @@ module.exports = (env) => {
     plugins: [
       new ModuleFederationPlugin({
         name: parsedEnv.NAME,
+        library: { type: 'var', name: parsedEnv.SCOPE },
         filename: 'remoteEntry.js',
         exposes: {
           [`./${parsedEnv.COMPONENT}`]: resolveRoot('src/remote-entry.ts'),
         },
         shared: {
-          ...deps,
-          react: {
-            singleton: true,
-            requiredVersion: deps['react'],
-          },
-          'react-dom': {
-            singleton: true,
-            requiredVersion: deps['react-dom'],
-          },
+          ...dependencies,
+          ...singletonDeps('react', 'react-dom', '@emotion/react', '@mantine/core', '@mantine/hooks', 'effector', 'effector-react'),
         },
       }),
       new HtmlWebpackPlugin({
         template: resolveRoot('public/index.html'),
+        chunks: ['main'],
       }),
-      isDev && new ReactRefreshWebpackPlugin(),
+      new webpack.DefinePlugin({
+        'process.env': JSON.stringify(parsedEnv),
+      }),
+      ...devPlugins,
     ].filter(Boolean),
     resolve: {
       alias: {
@@ -120,3 +129,17 @@ module.exports = (env) => {
     },
   };
 };
+
+function resolveRoot(...segments) {
+  return path.resolve(__dirname, ...segments);
+}
+
+function singletonDeps(...deps) {
+  return deps.reduce((depsObj, dep) => {
+    depsObj[dep] = {
+      singleton: true,
+      requiredVersion: dependencies[dep],
+    };
+    return depsObj;
+  }, {});
+}

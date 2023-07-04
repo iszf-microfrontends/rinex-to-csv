@@ -1,1 +1,4 @@
-export { AppWithProviders as default } from './app';
+import { Form } from './features/form';
+import { env } from './shared/config';
+
+export default { [env.COMPONENT]: Form };

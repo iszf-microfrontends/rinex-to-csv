@@ -31,3 +31,5 @@ export const navigationSystems: { type: NavigationType; label: NavigationSystem 
 ];
 
 export const navigationMeasurements = Object.values(NavigationMeasurement);
+
+export const fileAccept = '.rnx,.21o';

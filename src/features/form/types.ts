@@ -24,3 +24,19 @@ export enum NavigationType {
 }
 
 export type NavigationOption = { type: NavigationType; measurements: NavigationMeasurement[] };
+
+export type UploadRinexResponse = {
+  filename: string;
+  proc_id: string;
+};
+
+export type UploadNavResponse = UploadRinexResponse;
+
+export type CalculateRequestBody = {
+  [NavigationType.G_SIGNALS]: NavigationMeasurement[];
+  [NavigationType.R_SIGNALS]: NavigationMeasurement[];
+  [NavigationType.E_SIGNALS]: NavigationMeasurement[];
+  [NavigationType.C_SIGNALS]: NavigationMeasurement[];
+  [NavigationType.S_SIGNALS]: NavigationMeasurement[];
+  timestep: TimeStep;
+};

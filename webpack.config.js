@@ -44,26 +44,30 @@ module.exports = (env) => {
           throw new Error('webpack-dev-server is not defined');
         }
 
+        let failedStart = false;
         try {
           const body = JSON.stringify({
-            name: parsedEnv.NAME,
+            name: parsedEnv.MICROFRONTEND_NAME,
             url: `${parsedEnv.DOMAIN}:${parsedEnv.PORT}`,
-            scope: parsedEnv.SCOPE,
-            component: parsedEnv.COMPONENT,
-            backendUrl: parsedEnv.BACKEND_URL,
+            scope: parsedEnv.MODULE_FEDERATION_SCOPE,
+            component: parsedEnv.MAIN_EXPOSED_COMPONENT,
+            backendName: parsedEnv.BACKEND_NAME,
           }).replace(/"/g, '\\"');
           execSync(
             `curl -X POST -H "Content-Type: application/json" -d "${body}" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/start`,
           );
         } catch (error) {
+          failedStart = true;
           console.error('Error starting microfrontend:', error);
         }
 
         devServer.server.on('close', () => {
           try {
-            execSync(
-              `curl -X GET -H "Content-Type: application/json" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/close?name=${parsedEnv.NAME}`,
-            );
+            if (!failedStart) {
+              execSync(
+                `curl -X GET -H "Content-Type: application/json" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/close?name=${parsedEnv.NAME}`,
+              );
+            }
           } catch (error) {
             console.error('Error closing microfrontend:', error);
           }
@@ -101,15 +105,24 @@ module.exports = (env) => {
     },
     plugins: [
       new ModuleFederationPlugin({
-        name: parsedEnv.NAME,
-        library: { type: 'var', name: parsedEnv.SCOPE },
+        name: parsedEnv.MICROFRONTEND_NAME,
+        library: { type: 'var', name: parsedEnv.MODULE_FEDERATION_SCOPE },
         filename: 'remoteEntry.js',
         exposes: {
-          [`./${parsedEnv.COMPONENT}`]: resolveRoot('src/remote-entry.ts'),
+          [`./${parsedEnv.MAIN_EXPOSED_COMPONENT}`]: resolveRoot('src/remote-entry.ts'),
         },
         shared: {
           ...dependencies,
-          ...singletonDeps('react', 'react-dom', '@emotion/react', '@mantine/core', '@mantine/hooks', 'effector', 'effector-react'),
+          ...singletonDeps(
+            'react',
+            'react-dom',
+            '@emotion/react',
+            '@mantine/core',
+            '@mantine/hooks',
+            '@mantine/notifications',
+            'effector',
+            'effector-react',
+          ),
         },
       }),
       new HtmlWebpackPlugin({

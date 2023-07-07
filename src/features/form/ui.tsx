@@ -1,11 +1,25 @@
-import { useEffect } from 'react';
+import { HTMLAttributes, useEffect, useState } from 'react';
 
 import { useUnit } from 'effector-react';
 
-import { Button, ButtonProps, Checkbox, createStyles, FileInput, Group, Select, Stack, Text, Title, Tooltip } from '@mantine/core';
+import {
+  Box,
+  Button,
+  ButtonProps,
+  Checkbox,
+  createStyles,
+  FileInput,
+  FileInputProps,
+  Group,
+  LoadingOverlay,
+  Select,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { IconUpload } from '@tabler/icons-react';
 
-import { navigationMeasurements, navigationSystems, timeStepData } from './constants';
+import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from './constants';
 import * as model from './model';
 import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from './types';
 
@@ -18,19 +32,66 @@ const useStyles = createStyles(() => ({
 export function Form(): JSX.Element | null {
   const { classes } = useStyles();
 
-  const { mounted, timeStepChanged, navigationOptionChanged, formSubmitted, timeStep, timeStepError, navigationOptions } = useUnit({
+  const {
+    mounted,
+    uploadRinexFile,
+    uploadNavFile,
+    navigationOptionChanged,
+    timeStepChanged,
+    downloadResultPressed,
+    formSubmitted,
+    rinexFile,
+    rinexFileError,
+    isRinexFileLoading,
+    navFile,
+    navFileError,
+    isNavFileLoading,
+    navigationOptions,
+    navigationOptionsError,
+    timeStep,
+    timeStepError,
+    isCalculating,
+    isDownloadResultDisabled,
+    isResultDownloading,
+  } = useUnit({
     mounted: model.mounted,
-    timeStepChanged: model.timeStepChanged,
+    uploadRinexFile: model.uploadRinexFile,
+    uploadNavFile: model.uploadNavFile,
     navigationOptionChanged: model.navigationOptionChanged,
+    timeStepChanged: model.timeStepChanged,
+    downloadResultPressed: model.downloadResultPressed,
     formSubmitted: model.formSubmitted,
+    rinexFile: model.$rinexFile,
+    rinexFileError: model.$rinexFileError,
+    isRinexFileLoading: model.$isRinexFileLoading,
+    navFile: model.$navFile,
+    navFileError: model.$navFileError,
+    isNavFileLoading: model.$isNavFileLoading,
+    navigationOptions: model.$navigationOptions,
+    navigationOptionsError: model.$navigationOptionsError,
     timeStep: model.$timeStep,
     timeStepError: model.$timeStepError,
-    navigationOptions: model.$navigationOptions,
+    isCalculating: model.$isCalculating,
+    isDownloadResultDisabled: model.$isDownloadResultDisabled,
+    isResultDownloading: model.$isResultDownloading,
   });
 
   useEffect(() => {
     mounted();
   }, [mounted]);
+
+  const handleFileChange = (type: 'rinex' | 'nav') => (file: File | null) => {
+    if (file) {
+      switch (type) {
+        case 'rinex':
+          uploadRinexFile(file);
+          break;
+        case 'nav':
+          uploadNavFile(file);
+          break;
+      }
+    }
+  };
 
   const findNavigationOptionByType = (type: NavigationType): NavigationOption | undefined =>
     navigationOptions.find((option) => option.type === type);
@@ -52,30 +113,49 @@ export function Form(): JSX.Element | null {
   ));
 
   return (
-    <div>
-      <Title>Rinex-to-csv</Title>
-      <Stack spacing="xl" mt="xl">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        formSubmitted();
+      }}
+    >
+      <Stack spacing="xl">
         <Stack>
-          <FileInput
+          <FileInputWithLoading
+            required
             className={classes.input}
-            accept=".rnx,.rinex"
+            accept={fileAccept}
             label="Файл rinex"
             placeholder="Загрузить файл"
             icon={<IconUpload size="1rem" />}
+            value={rinexFile}
+            error={rinexFileError}
+            loading={isRinexFileLoading}
+            onChange={handleFileChange('rinex')}
           />
-          <FileInput
+          <FileInputWithLoading
+            required
             className={classes.input}
-            accept=".nav,.21o"
+            accept={fileAccept}
             label="Файл nav"
             placeholder="Загрузить файл"
             icon={<IconUpload size="1.1rem" />}
+            value={navFile}
+            error={navFileError}
+            loading={isNavFileLoading}
+            onChange={handleFileChange('nav')}
           />
         </Stack>
         <div>
           <Text size="sm" fw={500}>
-            Опции для расчета:
+            Опции для расчета: <span style={{ color: 'red' }}>*</span>
           </Text>
           {navigationSystemCheckboxGroups}
+          {navigationOptionsError && (
+            <Text size="xs" c="red" mt="xs">
+              {navigationOptionsError}
+            </Text>
+          )}
         </div>
         <Select
           required
@@ -92,19 +172,27 @@ export function Form(): JSX.Element | null {
           }}
         />
         <Group>
-          <Button onClick={formSubmitted}>Рассчитать координаты</Button>
-          <DisabledButton disabled tooltip="Сперва нужно рассчитать координаты">
+          <Button type="submit" loading={isCalculating}>
+            Рассчитать координаты
+          </Button>
+          <DisabledButton
+            tooltip="Сперва нужно рассчитать координаты"
+            disabled={isDownloadResultDisabled}
+            loading={isResultDownloading}
+            onClick={downloadResultPressed}
+          >
             Скачать результат
           </DisabledButton>
         </Group>
       </Stack>
-    </div>
+    </form>
   );
 }
 
-type DisabledButtonProps = ButtonProps & {
-  tooltip: string;
-};
+type DisabledButtonProps = ButtonProps &
+  HTMLAttributes<HTMLButtonElement> & {
+    tooltip: string;
+  };
 
 function DisabledButton({ disabled, tooltip, ...other }: DisabledButtonProps): JSX.Element | null {
   return disabled ? (
@@ -115,5 +203,39 @@ function DisabledButton({ disabled, tooltip, ...other }: DisabledButtonProps): J
     </Tooltip>
   ) : (
     <Button {...other} />
+  );
+}
+
+type FileInputWithLoadingProps = FileInputProps & {
+  loading?: boolean;
+};
+
+function FileInputWithLoading({ loading, label, className, error, required, ...other }: FileInputWithLoadingProps): JSX.Element | null {
+  const [fileInputKey, setFileInputKey] = useState(0);
+
+  return (
+    <Box className={className}>
+      {label && (
+        <Text fw={500} size="sm">
+          {label} {required && <span style={{ color: 'red' }}>*</span>}
+        </Text>
+      )}
+      <Box sx={{ position: 'relative' }}>
+        <LoadingOverlay visible={!!loading} loaderProps={{ size: 'xs' }} />
+        <FileInput
+          {...other}
+          key={fileInputKey}
+          onChange={(file) => {
+            setFileInputKey((prevKey) => prevKey + 1);
+            other.onChange?.(file);
+          }}
+        />
+      </Box>
+      {error && (
+        <Text size="xs" c="red">
+          {error}
+        </Text>
+      )}
+    </Box>
   );
 }

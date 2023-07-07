@@ -46,7 +46,9 @@
           ["^.+\\.?(css|scss)$"]
         ]
       }
-    ]
+    ],
+
+    "no-console": "warn"
   },
   "settings": {
     "react": {

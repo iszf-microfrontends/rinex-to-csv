@@ -65,7 +65,7 @@ module.exports = (env) => {
           try {
             if (!failedStart) {
               execSync(
-                `curl -X GET -H "Content-Type: application/json" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/close?name=${parsedEnv.NAME}`,
+                `curl -X GET -H "Content-Type: application/json" ${parsedEnv.MICROFRONTEND_CONTROL_SERVER_URL}/api/v1/microfrontends/close?name=${parsedEnv.MICROFRONTEND_NAME}`,
               );
             }
           } catch (error) {

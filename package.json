@@ -6,6 +6,7 @@
   "author": "Sviatoslav <sviatoslavnazin@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "preview": "node ./server/bootstrap",
     "start": "webpack serve --env dev",
     "build": "webpack build",
     "lint": "eslint src --ext ts,tsx --fix",
@@ -57,6 +58,7 @@
     "compose-function": "^3.0.3",
     "effector": "^22.8.6",
     "effector-react": "^22.5.3",
+    "express": "^4.18.2",
     "patronum": "^1.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

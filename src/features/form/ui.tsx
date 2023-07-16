@@ -1,22 +1,9 @@
-import { HTMLAttributes, useEffect, useState } from 'react';
+import { HTMLAttributes, useEffect } from 'react';
 
 import { useUnit } from 'effector-react';
 
-import {
-  Box,
-  Button,
-  ButtonProps,
-  Checkbox,
-  createStyles,
-  FileInput,
-  FileInputProps,
-  Group,
-  LoadingOverlay,
-  Select,
-  Stack,
-  Text,
-  Tooltip,
-} from '@mantine/core';
+import { FileInputWithLoading } from '@iszf-microfrontends/shared-ui';
+import { Button, ButtonProps, Checkbox, createStyles, Group, Select, Stack, Text, Tooltip } from '@mantine/core';
 import { IconUpload } from '@tabler/icons-react';
 
 import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from './constants';
@@ -203,39 +190,5 @@ function DisabledButton({ disabled, tooltip, ...other }: DisabledButtonProps): J
     </Tooltip>
   ) : (
     <Button {...other} />
-  );
-}
-
-type FileInputWithLoadingProps = FileInputProps & {
-  loading?: boolean;
-};
-
-function FileInputWithLoading({ loading, label, className, error, required, ...other }: FileInputWithLoadingProps): JSX.Element | null {
-  const [fileInputKey, setFileInputKey] = useState(0);
-
-  return (
-    <Box className={className}>
-      {label && (
-        <Text fw={500} size="sm">
-          {label} {required && <span style={{ color: 'red' }}>*</span>}
-        </Text>
-      )}
-      <Box sx={{ position: 'relative' }}>
-        <LoadingOverlay visible={!!loading} loaderProps={{ size: 'xs' }} />
-        <FileInput
-          {...other}
-          key={fileInputKey}
-          onChange={(file) => {
-            setFileInputKey((prevKey) => prevKey + 1);
-            other.onChange?.(file);
-          }}
-        />
-      </Box>
-      {error && (
-        <Text size="xs" c="red">
-          {error}
-        </Text>
-      )}
-    </Box>
   );
 }

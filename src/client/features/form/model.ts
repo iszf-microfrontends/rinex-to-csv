@@ -4,7 +4,7 @@ import { attach, createEvent, createStore, merge, sample } from 'effector';
 
 import { combineEvents, every, reset, status } from 'patronum';
 
-import { DownloadFileOptions, file, notification } from '~/shared/lib';
+import { DownloadFileOptions, file, notification } from '@client/shared/lib';
 
 import * as api from './api';
 import { CalculateRequestBody, NavigationOption, NavigationType, TimeStep } from './types';

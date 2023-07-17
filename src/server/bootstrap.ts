@@ -1,11 +1,12 @@
-const express = require('express');
-const { execSync } = require('child_process');
-const config = require('./config');
-const { resolveRoot } = require('./utils');
+import { execSync } from 'child_process';
+import express from 'express';
+import path from 'path';
+
+const config = process.env;
 
 const app = express();
 
-app.use(express.static(resolveRoot('dist')));
+app.use(express.static(path.resolve(__dirname, '..', '..', 'dist/client')));
 
 const server = app.listen(config.PORT, () => {
   console.log(`Microfrontend is running on port ${config.PORT}`);
@@ -17,11 +18,16 @@ server.on('close', () => {
   disconnectMicrofrontendFromMSC();
 });
 
-process.on('SIGINT', () => {
-  server.close((error) => {
-    process.exit(error ? 1 : 0);
+exitOnSignal('SIGINT');
+exitOnSignal('SIGTERM');
+
+function exitOnSignal(signal: string) {
+  process.on(signal, () => {
+    server.close((error) => {
+      process.exit(error ? 1 : 0);
+    });
   });
-});
+}
 
 function connectMicrofrontendToMSC() {
   try {

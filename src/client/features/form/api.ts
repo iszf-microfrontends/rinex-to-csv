@@ -1,6 +1,6 @@
 import { createEffect } from 'effector';
 
-import { api, Responder } from '~/shared/api';
+import { api, Responder } from '@client/shared/api';
 
 import { CalculateRequestBody, UploadNavResponse, UploadRinexResponse } from './types';
 

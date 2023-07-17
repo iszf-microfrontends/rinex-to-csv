@@ -1,4 +1,4 @@
-import { Form } from '~/features/form';
+import { Form } from '@client/features/form';
 
 import { withProviders } from './providers';
 

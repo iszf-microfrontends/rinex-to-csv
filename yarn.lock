@@ -1212,10 +1212,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@iszf-microfrontends/shared-ui@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@iszf-microfrontends/shared-ui/-/shared-ui-1.0.1.tgz#37b8ea3313545c879f6ce94b339b4211fcc8ccdf"
-  integrity sha512-UQGIqTiF7DFlFG0idgY9Vfrl7mK1FOkFfVtzdT8XN/MxeS4pbSfHDJIJiOWzSdj1kEZq03K7/1X6hfT9r4i2WA==
+"@iszf-microfrontends/shared-ui@^1.0.0-alpha.1":
+  version "1.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@iszf-microfrontends/shared-ui/-/shared-ui-1.0.0-alpha.1.tgz#2a19b89be5ec24a67cb70324a3197add02275420"
+  integrity sha512-ki+YAHpeMq1U97ZxsBacrQkmO9vv6FMd4J9mK88LJhhCjLLAJXv+FSV8Fteg7DLhLJgTY7p9KlHUXRxxEXMitQ==
   dependencies:
     "@emotion/react" "^11.11.1"
     "@mantine/core" "^6.0.16"

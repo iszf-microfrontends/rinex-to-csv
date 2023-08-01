@@ -10,14 +10,25 @@
     "start": "yarn build && yarn serve",
     "serve": "node dist/server/index.js",
     "build": "yarn build:client && yarn build:server",
-    "lint": "yarn lint:client && yarn lint:server",
-    "format": "yarn format:client && yarn format:server",
+    "lint": "eslint . --ext ts,tsx --fix",
+    "format": "prettier . --write",
     "build:client": "webpack --progress --config webpack/webpack.client.js",
-    "build:server": "webpack --progress --config webpack/webpack.server.js",
-    "lint:client": "eslint src/client --ext ts,tsx --fix",
-    "lint:server": "eslint src/server --ext ts,tsx --fix",
-    "format:client": "prettier src/client --write",
-    "format:server": "prettier src/server --write"
+    "build:server": "webpack --progress --config webpack/webpack.server.js"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@iszf-microfrontends/shared-ui": "^1.0.0-alpha.1",
+    "@mantine/core": "^6.0.14",
+    "@mantine/hooks": "^6.0.14",
+    "@mantine/notifications": "^6.0.16",
+    "@tabler/icons-react": "^2.23.0",
+    "compose-function": "^3.0.3",
+    "effector": "^22.8.6",
+    "effector-react": "^22.5.3",
+    "express": "^4.18.2",
+    "patronum": "^1.18.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
@@ -55,20 +66,5 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "webpack-merge": "^5.9.0"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@iszf-microfrontends/shared-ui": "^1.0.0-alpha.1",
-    "@mantine/core": "^6.0.14",
-    "@mantine/hooks": "^6.0.14",
-    "@mantine/notifications": "^6.0.16",
-    "@tabler/icons-react": "^2.23.0",
-    "compose-function": "^3.0.3",
-    "effector": "^22.8.6",
-    "effector-react": "^22.5.3",
-    "express": "^4.18.2",
-    "patronum": "^1.18.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
   }
 }

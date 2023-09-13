@@ -6,7 +6,7 @@ import { FileInputWithLoading } from '@iszf-microfrontends/shared-ui';
 import { Button, ButtonProps, Checkbox, createStyles, Group, Select, Stack, Text, Tooltip } from '@mantine/core';
 import { IconUpload } from '@tabler/icons-react';
 
-import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from './constants';
+import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from './config';
 import * as model from './model';
 import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from './types';
 
@@ -19,35 +19,7 @@ const useStyles = createStyles(() => ({
 export function Form(): JSX.Element | null {
   const { classes } = useStyles();
 
-  const {
-    mounted,
-    uploadRinexFile,
-    uploadNavFile,
-    navigationOptionChanged,
-    timeStepChanged,
-    downloadResultPressed,
-    formSubmitted,
-    rinexFile,
-    rinexFileError,
-    isRinexFileLoading,
-    navFile,
-    navFileError,
-    isNavFileLoading,
-    navigationOptions,
-    navigationOptionsError,
-    timeStep,
-    timeStepError,
-    isCalculating,
-    isDownloadResultDisabled,
-    isResultDownloading,
-  } = useUnit({
-    mounted: model.mounted,
-    uploadRinexFile: model.uploadRinexFile,
-    uploadNavFile: model.uploadNavFile,
-    navigationOptionChanged: model.navigationOptionChanged,
-    timeStepChanged: model.timeStepChanged,
-    downloadResultPressed: model.downloadResultPressed,
-    formSubmitted: model.formSubmitted,
+  const stores = useUnit({
     rinexFile: model.$rinexFile,
     rinexFileError: model.$rinexFileError,
     isRinexFileLoading: model.$isRinexFileLoading,
@@ -62,26 +34,35 @@ export function Form(): JSX.Element | null {
     isDownloadResultDisabled: model.$isDownloadResultDisabled,
     isResultDownloading: model.$isResultDownloading,
   });
+  const events = useUnit({
+    mounted: model.mounted,
+    uploadRinexFile: model.uploadRinexFile,
+    uploadNavFile: model.uploadNavFile,
+    navigationOptionChanged: model.navigationOptionChanged,
+    timeStepChanged: model.timeStepChanged,
+    downloadResultPressed: model.downloadResultPressed,
+    formSubmitted: model.formSubmitted,
+  });
 
   useEffect(() => {
-    mounted();
-  }, [mounted]);
+    events.mounted();
+  }, [events]);
 
   const handleFileChange = (type: 'rinex' | 'nav') => (file: File | null) => {
     if (file) {
       switch (type) {
         case 'rinex':
-          uploadRinexFile(file);
+          events.uploadRinexFile(file);
           break;
         case 'nav':
-          uploadNavFile(file);
+          events.uploadNavFile(file);
           break;
       }
     }
   };
 
   const findNavigationOptionByType = (type: NavigationType): NavigationOption | undefined =>
-    navigationOptions.find((option) => option.type === type);
+    stores.navigationOptions.find((option) => option.type === type);
 
   const navigationSystemCheckboxGroups = navigationSystems.map((system) => (
     <Checkbox.Group
@@ -89,7 +70,7 @@ export function Form(): JSX.Element | null {
       key={system.type}
       label={system.label}
       value={findNavigationOptionByType(system.type)?.measurements}
-      onChange={(value) => navigationOptionChanged({ type: system.type, measurements: value as NavigationMeasurement[] })}
+      onChange={(value) => events.navigationOptionChanged({ type: system.type, measurements: value as NavigationMeasurement[] })}
     >
       <Group mt="xs">
         {navigationMeasurements.map((measurement) => (
@@ -103,7 +84,7 @@ export function Form(): JSX.Element | null {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        formSubmitted();
+        events.formSubmitted();
       }}
     >
       <Stack spacing="xl">
@@ -115,9 +96,9 @@ export function Form(): JSX.Element | null {
             label="Файл rinex"
             placeholder="Загрузить файл"
             icon={<IconUpload size="1rem" />}
-            value={rinexFile}
-            error={rinexFileError}
-            loading={isRinexFileLoading}
+            value={stores.rinexFile}
+            error={stores.rinexFileError}
+            loading={stores.isRinexFileLoading}
             onChange={handleFileChange('rinex')}
           />
           <FileInputWithLoading
@@ -127,9 +108,9 @@ export function Form(): JSX.Element | null {
             label="Файл nav"
             placeholder="Загрузить файл"
             icon={<IconUpload size="1.1rem" />}
-            value={navFile}
-            error={navFileError}
-            loading={isNavFileLoading}
+            value={stores.navFile}
+            error={stores.navFileError}
+            loading={stores.isNavFileLoading}
             onChange={handleFileChange('nav')}
           />
         </Stack>
@@ -138,9 +119,9 @@ export function Form(): JSX.Element | null {
             Опции для расчета: <span style={{ color: 'red' }}>*</span>
           </Text>
           {navigationSystemCheckboxGroups}
-          {navigationOptionsError && (
+          {stores.navigationOptionsError && (
             <Text size="xs" c="red" mt="xs">
-              {navigationOptionsError}
+              {stores.navigationOptionsError}
             </Text>
           )}
         </div>
@@ -149,24 +130,24 @@ export function Form(): JSX.Element | null {
           className={classes.input}
           label="Временной промежуток"
           placeholder="Выберите временной промежуток"
-          value={String(timeStep)}
+          value={String(stores.timeStep)}
           data={timeStepData}
-          error={timeStepError}
+          error={stores.timeStepError}
           onChange={(value) => {
             if (value) {
-              timeStepChanged(Number(value) as TimeStep);
+              events.timeStepChanged(Number(value) as TimeStep);
             }
           }}
         />
         <Group>
-          <Button type="submit" loading={isCalculating}>
+          <Button type="submit" loading={stores.isCalculating}>
             Рассчитать координаты
           </Button>
           <DisabledButton
             tooltip="Сперва нужно рассчитать координаты"
-            disabled={isDownloadResultDisabled}
-            loading={isResultDownloading}
-            onClick={downloadResultPressed}
+            disabled={stores.isDownloadResultDisabled}
+            loading={stores.isResultDownloading}
+            onClick={events.downloadResultPressed}
           >
             Скачать результат
           </DisabledButton>

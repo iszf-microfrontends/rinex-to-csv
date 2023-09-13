@@ -1,1 +1,1 @@
-export { Form as default } from './features/form';
+export { MainComponent as default } from './main-component';

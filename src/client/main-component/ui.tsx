@@ -16,7 +16,7 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-export function Form(): JSX.Element | null {
+export function MainComponent(): JSX.Element | null {
   const { classes } = useStyles();
 
   const stores = useUnit({

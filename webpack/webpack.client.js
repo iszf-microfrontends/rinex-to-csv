@@ -73,6 +73,7 @@ const devClientConfig = (env) => {
     devServer: {
       port: config.PORT,
       hot: true,
+      liveReload: false,
     },
     plugins: [new ReactRefreshWebpackPlugin()],
   });

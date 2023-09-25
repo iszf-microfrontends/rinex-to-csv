@@ -1,58 +1,79 @@
-import { HTMLAttributes, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useUnit } from 'effector-react';
 
-import { FileInputWithLoading } from '@iszf-microfrontends/shared-ui';
-import { Button, ButtonProps, Checkbox, createStyles, Group, Select, Stack, Text, Tooltip } from '@mantine/core';
-import { IconUpload } from '@tabler/icons-react';
+import { Checkbox, Group, Select, Stack, Text } from '@mantine/core';
 
-import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from './config';
-import * as model from './model';
-import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from './types';
+import { FileInput } from '@iszf-microfrontends/shared-ui';
 
-const useStyles = createStyles(() => ({
-  input: {
-    width: 400,
-  },
-}));
+import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from '@client/shared/api';
+import { Button, TablerIcon } from '@client/shared/ui';
 
-export function MainComponent(): JSX.Element | null {
+import { useStyles } from './styles';
+
+import { fileAccept, navigationMeasurements, navigationSystems, timeStepData } from '../config';
+import {
+  $isCalculating,
+  $isDownloadResultDisabled,
+  $isNavFileLoading,
+  $isResultDownloading,
+  $isRinexFileLoading,
+  $navFile,
+  $navFileError,
+  $navigationOptions,
+  $navigationOptionsError,
+  $rinexFile,
+  $rinexFileError,
+  $timeStep,
+  $timeStepError,
+  downloadResultPressed,
+  formSubmitted,
+  mounted,
+  navigationOptionChanged,
+  rinexFileChanged,
+  timeStepChanged,
+  uploadNavFile,
+} from '../model';
+
+export const MainComponent = () => {
   const { classes } = useStyles();
 
   const stores = useUnit({
-    rinexFile: model.$rinexFile,
-    rinexFileError: model.$rinexFileError,
-    isRinexFileLoading: model.$isRinexFileLoading,
-    navFile: model.$navFile,
-    navFileError: model.$navFileError,
-    isNavFileLoading: model.$isNavFileLoading,
-    navigationOptions: model.$navigationOptions,
-    navigationOptionsError: model.$navigationOptionsError,
-    timeStep: model.$timeStep,
-    timeStepError: model.$timeStepError,
-    isCalculating: model.$isCalculating,
-    isDownloadResultDisabled: model.$isDownloadResultDisabled,
-    isResultDownloading: model.$isResultDownloading,
+    rinexFile: $rinexFile,
+    rinexFileError: $rinexFileError,
+    isRinexFileLoading: $isRinexFileLoading,
+    navFile: $navFile,
+    navFileError: $navFileError,
+    isNavFileLoading: $isNavFileLoading,
+    navigationOptions: $navigationOptions,
+    navigationOptionsError: $navigationOptionsError,
+    timeStep: $timeStep,
+    timeStepError: $timeStepError,
+    isCalculating: $isCalculating,
+    isDownloadResultDisabled: $isDownloadResultDisabled,
+    isResultDownloading: $isResultDownloading,
   });
+
   const events = useUnit({
-    mounted: model.mounted,
-    uploadRinexFile: model.uploadRinexFile,
-    uploadNavFile: model.uploadNavFile,
-    navigationOptionChanged: model.navigationOptionChanged,
-    timeStepChanged: model.timeStepChanged,
-    downloadResultPressed: model.downloadResultPressed,
-    formSubmitted: model.formSubmitted,
+    mounted: mounted,
+    rinexFileChanged: rinexFileChanged,
+    uploadNavFile: uploadNavFile,
+    navigationOptionChanged: navigationOptionChanged,
+    timeStepChanged: timeStepChanged,
+    downloadResultPressed: downloadResultPressed,
+    formSubmitted: formSubmitted,
   });
 
   useEffect(() => {
     events.mounted();
-  }, [events]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileChange = (type: 'rinex' | 'nav') => (file: File | null) => {
     if (file) {
       switch (type) {
         case 'rinex':
-          events.uploadRinexFile(file);
+          events.rinexFileChanged(file);
           break;
         case 'nav':
           events.uploadNavFile(file);
@@ -89,25 +110,29 @@ export function MainComponent(): JSX.Element | null {
     >
       <Stack spacing="xl">
         <Stack>
-          <FileInputWithLoading
+          <FileInput
             required
-            className={classes.input}
+            classNames={{
+              input: classes.input,
+            }}
             accept={fileAccept}
             label="Файл rinex"
             placeholder="Загрузить файл"
-            icon={<IconUpload size="1rem" />}
+            icon={<TablerIcon type="upload" />}
             value={stores.rinexFile}
             error={stores.rinexFileError}
             loading={stores.isRinexFileLoading}
             onChange={handleFileChange('rinex')}
           />
-          <FileInputWithLoading
+          <FileInput
             required
-            className={classes.input}
+            classNames={{
+              input: classes.input,
+            }}
             accept={fileAccept}
             label="Файл nav"
             placeholder="Загрузить файл"
-            icon={<IconUpload size="1.1rem" />}
+            icon={<TablerIcon type="upload" />}
             value={stores.navFile}
             error={stores.navFileError}
             loading={stores.isNavFileLoading}
@@ -130,7 +155,7 @@ export function MainComponent(): JSX.Element | null {
           className={classes.input}
           label="Временной промежуток"
           placeholder="Выберите временной промежуток"
-          value={String(stores.timeStep)}
+          value={`${stores.timeStep}`}
           data={timeStepData}
           error={stores.timeStepError}
           onChange={(value) => {
@@ -143,33 +168,16 @@ export function MainComponent(): JSX.Element | null {
           <Button type="submit" loading={stores.isCalculating}>
             Рассчитать координаты
           </Button>
-          <DisabledButton
+          <Button
             tooltip="Сперва нужно рассчитать координаты"
             disabled={stores.isDownloadResultDisabled}
             loading={stores.isResultDownloading}
             onClick={events.downloadResultPressed}
           >
             Скачать результат
-          </DisabledButton>
+          </Button>
         </Group>
       </Stack>
     </form>
   );
-}
-
-type DisabledButtonProps = ButtonProps &
-  HTMLAttributes<HTMLButtonElement> & {
-    tooltip: string;
-  };
-
-function DisabledButton({ disabled, tooltip, ...other }: DisabledButtonProps): JSX.Element | null {
-  return disabled ? (
-    <Tooltip label={tooltip}>
-      <span>
-        <Button disabled={disabled} {...other} />
-      </span>
-    </Tooltip>
-  ) : (
-    <Button {...other} />
-  );
-}
+};

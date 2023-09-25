@@ -1,19 +1,17 @@
 const { merge } = require('webpack-merge');
 
-module.exports = (options = {}) => {
+module.exports = (options) => {
   const babelOptions = merge(
     {
-      presets: ['@babel/preset-env', '@babel/preset-typescript'],
-      plugins: ['@babel/plugin-transform-runtime'],
+      presets: ['@babel/preset-typescript'],
     },
-    options.babelOptions ?? {},
+    options?.babelOptions ?? {},
   );
 
   return {
     output: {
-      publicPath: 'auto',
-      clean: true,
       filename: 'index.js',
+      clean: true,
     },
     module: {
       rules: [

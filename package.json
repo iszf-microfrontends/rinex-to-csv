@@ -1,10 +1,6 @@
 {
   "name": "rinex-to-csv",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@github.com:iszf-microfrontends/rinex-to-csv.git",
-  "author": "Sviatoslav <sviatoslavnazin@gmail.com>",
-  "license": "MIT",
+  "private": true,
   "scripts": {
     "dev": "webpack serve --env dev --config webpack/webpack.client.js",
     "start": "yarn build && yarn serve",
@@ -17,7 +13,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
-    "@iszf-microfrontends/shared-ui": "^1.0.1-alpha.1",
+    "@iszf-microfrontends/shared-ui": "^1.0.2",
     "@mantine/core": "^6.0.14",
     "@mantine/hooks": "^6.0.14",
     "@mantine/notifications": "^6.0.16",
@@ -32,11 +28,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.22.5",
-    "@babel/preset-env": "^7.22.5",
     "@babel/preset-react": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
-    "@emotion/babel-plugin": "^11.11.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@types/compose-function": "^0.0.30",
     "@types/express": "^4.17.17",

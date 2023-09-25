@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
     "target": "es2020",
     "module": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -18,9 +17,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@client/*": ["src/client/*"]
+      "@client/*": ["src/client/*"],
+      "@server/*": ["src/server/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "types"]
 }

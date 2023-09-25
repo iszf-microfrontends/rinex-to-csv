@@ -1,4 +1,4 @@
-import { env } from '../config';
+import { env } from '@client/shared/config';
 
 type ContentType = 'application/json' | 'multipart/form-data' | 'auto';
 
@@ -29,7 +29,6 @@ export const request = async <RequestBody = unknown, ResponseData = unknown>(opt
     headers.delete('Content-Type');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body = contentIs(headers, 'application/json') ? JSON.stringify(options.body) : (options.body as any);
 
   const response = await fetch(`${env.BACKEND_URL}/${env.BACKEND_NAME}/${options.path}`, {

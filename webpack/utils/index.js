@@ -1,5 +1,4 @@
 const resolveRoot = require('./resolveRoot');
+const singletonDeps = require('./singletonDeps');
 
-module.exports = {
-  resolveRoot,
-};
+module.exports = { resolveRoot, singletonDeps };

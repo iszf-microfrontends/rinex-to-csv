@@ -4,24 +4,23 @@ import { attach, createEvent, createStore, merge, sample } from 'effector';
 
 import { combineEvents, every, reset, status } from 'patronum';
 
+import { CalculateRequestBody, NavigationOption, NavigationType, rinexToCsvApi, TimeStep } from '@client/shared/api';
+import { env } from '@client/shared/config';
 import { DownloadFileOptions, file, notification } from '@client/shared/lib';
-
-import * as api from './api';
-import { CalculateRequestBody, NavigationOption, NavigationType, TimeStep } from './types';
 
 const readRinexFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });
 const readNavFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });
 const downloadFileFx = attach({ effect: file.downloadFileFx });
 
-const uploadRinexFileFx = attach({ effect: api.uploadRinexFileFx });
-const uploadNavFileFx = attach({ effect: api.uploadNavFileFx });
-const calculateFx = attach({ effect: api.calculateFx });
-const getResultFx = attach({ effect: api.getResultFx });
+const uploadRinexFileFx = attach({ effect: rinexToCsvApi.uploadRinexFileFx });
+const uploadNavFileFx = attach({ effect: rinexToCsvApi.uploadNavFileFx });
+const calculateFx = attach({ effect: rinexToCsvApi.calculateFx });
+const getResultFx = attach({ effect: rinexToCsvApi.getResultFx });
 
 export const mounted = createEvent();
 
-export const uploadRinexFile = createEvent<File>();
-const rinexFileUploaded = combineEvents({ events: [uploadRinexFile, uploadRinexFileFx.doneData] });
+export const rinexFileChanged = createEvent<File>();
+const rinexFileUploaded = combineEvents({ events: [rinexFileChanged, uploadRinexFileFx.doneData] });
 
 export const uploadNavFile = createEvent<File>();
 const navFileUploaded = combineEvents({ events: [uploadNavFile, uploadNavFileFx.doneData] });
@@ -36,7 +35,7 @@ export const formSubmitted = createEvent();
 const formChanged = merge([rinexFileUploaded, navFileUploaded, navigationOptionChanged, timeStepChanged]);
 
 export const $rinexFile = createStore<File | null>(null).on(rinexFileUploaded, (_, [file]) => file);
-export const $rinexFileError = createStore<string | null>(null).on([uploadRinexFile, uploadRinexFileFx.done], () => null);
+export const $rinexFileError = createStore<string | null>(null).on([rinexFileChanged, uploadRinexFileFx.done], () => null);
 export const $isRinexFileLoading = uploadRinexFileFx.pending;
 
 export const $navFile = createStore<File | null>(null).on(navFileUploaded, (_, [file]) => file);
@@ -65,7 +64,7 @@ reset({
   target: [$rinexFile, $rinexFileError, $navFile, $navFileError, $navigationOptions, $navigationOptionsError, $timeStep, $timeStepError],
 });
 
-sample({ clock: uploadRinexFile, target: readRinexFileAsArrayBufferFx });
+sample({ clock: rinexFileChanged, target: readRinexFileAsArrayBufferFx });
 
 sample({
   clock: readRinexFileAsArrayBufferFx.doneData,
@@ -186,22 +185,24 @@ sample({
   })),
 });
 
-$rinexFile.watch((value) => {
-  console.log(`rinexFile state: ${value?.name}`);
-});
+if (env.IS_DEV) {
+  $rinexFile.watch((value) => {
+    console.log(`rinexFile state: ${value?.name}`);
+  });
 
-$navFile.watch((value) => {
-  console.log(`navFile state: ${value?.name}`);
-});
+  $navFile.watch((value) => {
+    console.log(`navFile state: ${value?.name}`);
+  });
 
-$timeStep.watch((value) => {
-  console.log(`timeStep state: ${value}`);
-});
+  $timeStep.watch((value) => {
+    console.log(`timeStep state: ${value}`);
+  });
 
-$timeStepError.watch((value) => {
-  console.log(`timeStepError state: ${value}`);
-});
+  $timeStepError.watch((value) => {
+    console.log(`timeStepError state: ${value}`);
+  });
 
-$navigationOptions.watch((value) => {
-  console.log(`navigationOptions state: ${JSON.stringify(value)}`);
-});
+  $navigationOptions.watch((value) => {
+    console.log(`navigationOptions state: ${JSON.stringify(value)}`);
+  });
+}

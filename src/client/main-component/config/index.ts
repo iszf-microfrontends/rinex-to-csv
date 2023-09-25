@@ -1,10 +1,10 @@
-import { NavigationMeasurement, NavigationSystem, NavigationType, TimeStep } from './types';
+import { NavigationMeasurement, NavigationSystem, NavigationType, TimeStep } from '@client/shared/api';
 
 export const timeSteps: TimeStep[] = [10, 30, 60, 120];
 
 export const timeStepData: { label: string; value: string }[] = timeSteps.map((timeStep) => ({
   label: `${timeStep} сек.`,
-  value: String(timeStep),
+  value: `${timeStep}`,
 }));
 
 export const navigationSystems: { type: NavigationType; label: NavigationSystem }[] = [

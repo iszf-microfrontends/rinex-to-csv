@@ -4,19 +4,19 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const dotenv = require('dotenv');
-const { resolveRoot } = require('./utils');
+const { resolveRoot, singletonDeps } = require('./utils');
 const sharedConfig = require('./webpack.shared');
-const { dependencies } = require('../package.json');
+const pkg = require('../package.json');
 
 const config = { ...dotenv.config().parsed };
 
-const sharedClientConfig = (options = {}) => {
+const sharedClientConfig = (env, options) => {
   const babelOptions = merge(
     {
-      presets: [['@babel/preset-react', { runtime: 'automatic' }]],
-      plugins: ['@emotion', 'effector/babel-plugin'],
+      presets: [['@babel/preset-react', { runtime: 'automatic' }], 'patronum/babel-preset'],
+      plugins: ['effector/babel-plugin'],
     },
-    options.babelOptions ?? {},
+    options?.babelOptions ?? {},
   );
 
   return merge(sharedConfig({ babelOptions }), {
@@ -35,8 +35,9 @@ const sharedClientConfig = (options = {}) => {
           [`./${config.MAIN_EXPOSED_COMPONENT}`]: resolveRoot('src/client/remote-entry.ts'),
         },
         shared: {
-          ...dependencies,
+          ...pkg.dependencies,
           ...singletonDeps(
+            pkg.dependencies,
             'react',
             'react-dom',
             '@emotion/react',
@@ -51,9 +52,10 @@ const sharedClientConfig = (options = {}) => {
       new HtmlWebpackPlugin({
         template: resolveRoot('public/index.html'),
         chunks: ['main'],
+        minify: true,
       }),
       new DefinePlugin({
-        'process.env': JSON.stringify(config),
+        'process.env': JSON.stringify({ ...config, IS_DEV: !!env.dev }),
       }),
     ],
     resolve: {
@@ -64,37 +66,29 @@ const sharedClientConfig = (options = {}) => {
   });
 };
 
-const devClientConfig = merge(sharedClientConfig({ babelOptions: { plugins: ['react-refresh/babel'] } }), {
-  mode: 'development',
-  devtool: 'inline-source-map',
-  devServer: {
-    port: config.PORT,
-    static: resolveRoot('dist/client'),
-    hot: true,
-    liveReload: false,
-  },
-  plugins: [new ReactRefreshWebpackPlugin()],
-});
+const devClientConfig = (env) => {
+  return merge(sharedClientConfig(env, { babelOptions: { plugins: ['react-refresh/babel'] } }), {
+    mode: 'development',
+    devtool: 'inline-source-map',
+    devServer: {
+      port: config.PORT,
+      hot: true,
+    },
+    plugins: [new ReactRefreshWebpackPlugin()],
+  });
+};
 
-const prodClientConfig = merge(sharedClientConfig(), {
-  mode: 'production',
-  devtool: false,
-});
+const prodClientConfig = (env) => {
+  return merge(sharedClientConfig(env), {
+    mode: 'production',
+    devtool: 'source-map',
+  });
+};
 
 module.exports = (env) => {
   const isDev = !!env.dev;
   if (isDev) {
-    return devClientConfig;
+    return devClientConfig(env);
   }
-  return prodClientConfig;
+  return prodClientConfig(env);
 };
-
-function singletonDeps(...deps) {
-  return deps.reduce((depsObj, dep) => {
-    depsObj[dep] = {
-      singleton: true,
-      requiredVersion: dependencies[dep],
-    };
-    return depsObj;
-  }, {});
-}

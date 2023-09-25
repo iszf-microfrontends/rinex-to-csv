@@ -1,11 +1,10 @@
 import { createEffect } from 'effector';
 
-import { api, Responder } from '@client/shared/api';
-
-import { CalculateRequestBody, UploadNavResponse, UploadRinexResponse } from './types';
+import { request, Responder } from '../request';
+import { CalculateRequestBody, UploadNavResponse, UploadRinexResponse } from '../types';
 
 export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexResponse>>((formData) =>
-  api.request({
+  request({
     path: 'upload_rinex',
     method: 'POST',
     body: formData,
@@ -15,7 +14,7 @@ export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexRes
 );
 
 export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavResponse>>((formData) =>
-  api.request({
+  request({
     path: 'upload_nav',
     method: 'POST',
     body: formData,
@@ -25,7 +24,7 @@ export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavRespons
 );
 
 export const calculateFx = createEffect<CalculateRequestBody, Responder<unknown>>((body) =>
-  api.request({
+  request({
     path: 'run',
     method: 'POST',
     body,
@@ -34,5 +33,5 @@ export const calculateFx = createEffect<CalculateRequestBody, Responder<unknown>
 );
 
 export const getResultFx = createEffect<void, Responder<ArrayBuffer>>(() =>
-  api.request({ path: 'get_result', method: 'GET', responseType: 'arraybuffer' }),
+  request({ path: 'get_result', method: 'GET', responseType: 'arraybuffer' }),
 );

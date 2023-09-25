@@ -2,27 +2,16 @@ import { execSync } from 'child_process';
 import express from 'express';
 import path from 'path';
 
-type Config = {
-  PORT: number;
-  MICROFRONTEND_NAME: string;
-  DOMAIN: string;
-  MODULE_FEDERATION_SCOPE: string;
-  MAIN_EXPOSED_COMPONENT: string;
-  BACKEND_NAME: string;
-  MICROFRONTEND_CONTROL_SERVER_URL: string;
-  MSC_CONNECTION_RETRY_DELAY: number;
-};
-
 const config = {
-  PORT: process.env.PORT ?? 3000,
+  PORT: process.env.PORT,
   MICROFRONTEND_NAME: process.env.MICROFRONTEND_NAME,
   DOMAIN: process.env.DOMAIN,
   MODULE_FEDERATION_SCOPE: process.env.MODULE_FEDERATION_SCOPE,
   MAIN_EXPOSED_COMPONENT: process.env.MAIN_EXPOSED_COMPONENT,
   BACKEND_NAME: process.env.BACKEND_NAME,
   MICROFRONTEND_CONTROL_SERVER_URL: process.env.MICROFRONTEND_CONTROL_SERVER_URL,
-  MSC_CONNECTION_RETRY_DELAY: 10000,
-} as Config;
+  MSC_CONNECTION_RETRY_DELAY: 5000,
+};
 
 const app = express();
 let isMscConnected = false;

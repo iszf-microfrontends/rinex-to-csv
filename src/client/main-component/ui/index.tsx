@@ -6,8 +6,8 @@ import { Checkbox, Group, Select, Stack, Text } from '@mantine/core';
 
 import { FileInput } from '@iszf-microfrontends/shared-ui';
 
-import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from '@client/shared/api';
-import { Button, TablerIcon } from '@client/shared/ui';
+import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from '~client/shared/api';
+import { Button, TablerIcon } from '~client/shared/ui';
 
 import { useStyles } from './styles';
 

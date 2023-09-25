@@ -60,7 +60,7 @@ const sharedClientConfig = (env, options) => {
     ],
     resolve: {
       alias: {
-        '@client': resolveRoot('src/client'),
+        '~client': resolveRoot('src/client'),
       },
     },
   });

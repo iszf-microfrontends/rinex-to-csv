@@ -1,4 +1,4 @@
-import { env } from '@client/shared/config';
+import { env } from '~client/shared/config';
 
 type ContentType = 'application/json' | 'multipart/form-data' | 'auto';
 

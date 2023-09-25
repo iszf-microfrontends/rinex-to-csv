@@ -4,9 +4,9 @@ import { attach, createEvent, createStore, merge, sample } from 'effector';
 
 import { combineEvents, every, reset, status } from 'patronum';
 
-import { CalculateRequestBody, NavigationOption, NavigationType, rinexToCsvApi, TimeStep } from '@client/shared/api';
-import { env } from '@client/shared/config';
-import { DownloadFileOptions, file, notification } from '@client/shared/lib';
+import { CalculateRequestBody, NavigationOption, NavigationType, rinexToCsvApi, TimeStep } from '~client/shared/api';
+import { env } from '~client/shared/config';
+import { DownloadFileOptions, file, notification } from '~client/shared/lib';
 
 const readRinexFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });
 const readNavFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });

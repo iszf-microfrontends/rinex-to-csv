@@ -16,7 +16,7 @@ module.exports = merge(sharedConfig(), {
   plugins: [new NodePolyfillPlugin(), new DotenvWebpackPlugin()],
   resolve: {
     alias: {
-      '@server': resolveRoot('src/server'),
+      '~server': resolveRoot('src/server'),
     },
   },
 });

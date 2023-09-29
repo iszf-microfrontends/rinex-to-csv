@@ -1,7 +1,7 @@
 import { createEffect } from 'effector';
 
-import { request, Responder } from '../request';
-import { CalculateRequestBody, UploadNavResponse, UploadRinexResponse } from '../types';
+import { request, Responder } from './request';
+import { CalculateBody, UploadNavResponse, UploadRinexResponse } from './types';
 
 export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexResponse>>((formData) =>
   request({
@@ -23,7 +23,7 @@ export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavRespons
   }),
 );
 
-export const calculateFx = createEffect<CalculateRequestBody, Responder<unknown>>((body) =>
+export const calculateFx = createEffect<CalculateBody, Responder<unknown>>((body) =>
   request({
     path: 'run',
     method: 'POST',

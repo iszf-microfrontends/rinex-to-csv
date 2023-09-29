@@ -1,95 +1,87 @@
-const { DefinePlugin } = require('webpack');
+const path = require('path');
 const { merge } = require('webpack-merge');
+const { DefinePlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
 const dotenv = require('dotenv');
-const { resolveRoot, singletonDeps } = require('./utils');
 const sharedConfig = require('./webpack.shared');
 const pkg = require('../package.json');
 
 const config = { ...dotenv.config().parsed };
 
-const sharedClientConfig = (env, options) => {
-  const babelOptions = merge(
-    {
-      presets: [['@babel/preset-react', { runtime: 'automatic' }], 'patronum/babel-preset'],
-      plugins: ['effector/babel-plugin'],
-    },
-    options?.babelOptions ?? {},
-  );
-
-  return merge(sharedConfig({ babelOptions }), {
-    name: 'client',
-    target: 'web',
-    entry: resolveRoot('src/client/index'),
-    output: {
-      path: resolveRoot('dist/client'),
-    },
-    plugins: [
-      new ModuleFederationPlugin({
-        name: config.MICROFRONTEND_NAME,
-        library: { type: 'var', name: config.MODULE_FEDERATION_SCOPE },
-        filename: 'remoteEntry.js',
-        exposes: {
-          [`./${config.MAIN_EXPOSED_COMPONENT}`]: resolveRoot('src/client/remote-entry.ts'),
-        },
-        shared: {
-          ...pkg.dependencies,
-          ...singletonDeps(
-            pkg.dependencies,
-            'react',
-            'react-dom',
-            '@emotion/react',
-            '@mantine/core',
-            '@mantine/hooks',
-            '@mantine/notifications',
-            'effector',
-            'effector-react',
-          ),
-        },
-      }),
-      new HtmlWebpackPlugin({
-        template: resolveRoot('public/index.html'),
-        chunks: ['main'],
-        minify: true,
-      }),
-      new DefinePlugin({
-        'process.env': JSON.stringify({ ...config, IS_DEV: !!env.dev }),
-      }),
-    ],
-    resolve: {
-      alias: {
-        '~client': resolveRoot('src/client'),
-      },
-    },
-  });
-};
-
-const devClientConfig = (env) => {
-  return merge(sharedClientConfig(env, { babelOptions: { plugins: ['react-refresh/babel'] } }), {
-    mode: 'development',
-    devtool: 'inline-source-map',
-    devServer: {
-      port: config.PORT,
-      hot: true,
-      liveReload: false,
-    },
-    plugins: [new ReactRefreshWebpackPlugin()],
-  });
-};
-
-const prodClientConfig = (env) => {
-  return merge(sharedClientConfig(env), {
-    mode: 'production',
-    devtool: 'source-map',
-  });
-};
-
 module.exports = (env) => {
   const isDev = !!env.dev;
+
+  const devPlugins = [];
   if (isDev) {
-    return devClientConfig(env);
+    devPlugins.push(new ReactRefreshWebpackPlugin());
   }
-  return prodClientConfig(env);
+
+  return merge(
+    sharedConfig({
+      babelOptions: {
+        presets: [['@babel/preset-react', { runtime: 'automatic' }], 'patronum/babel-preset'],
+        plugins: ['effector/babel-plugin'],
+      },
+    }),
+    {
+      name: 'client',
+      target: 'web',
+      mode: isDev ? 'development' : 'production',
+      entry: path.resolve(__dirname, '../src/client/index'),
+      output: {
+        path: path.resolve(__dirname, '../dist/client'),
+        publicPath: 'auto',
+      },
+      devServer: {
+        port: config.PORT,
+        hot: true,
+      },
+      plugins: [
+        new ModuleFederationPlugin({
+          name: config.APP_NAME,
+          filename: 'remoteEntry.js',
+          exposes: {
+            './Content': path.resolve(__dirname, '../src/client/content'),
+          },
+          shared: {
+            ...pkg.dependencies,
+            react: {
+              singleton: true,
+              requiredVersion: pkg.dependencies['react'],
+            },
+            'react-dom': {
+              singleton: true,
+              requiredVersion: pkg.dependencies['react-dom'],
+            },
+            '@emotion/react': {
+              singleton: true,
+            },
+            '@mantine/core': {
+              singleton: true,
+            },
+            '@mantine/hooks': {
+              singleton: true,
+            },
+            '@mantine/notifications': {
+              singleton: true,
+            },
+          },
+        }),
+        new HtmlWebpackPlugin({
+          template: path.resolve(__dirname, '../public/index.html'),
+          templateParameters: {
+            APP_TITLE: config.APP_NAME.split('_').join(' '),
+          },
+          chunks: ['main'],
+        }),
+        new DefinePlugin({
+          'process.env': JSON.stringify({ ...config }),
+          __DEV__: isDev,
+        }),
+        ...devPlugins,
+      ],
+    },
+  );
 };

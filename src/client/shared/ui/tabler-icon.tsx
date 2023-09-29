@@ -1,5 +1,4 @@
 import { rem } from '@mantine/core';
-
 import { IconUpload, TablerIconsProps as LibTablerIconsProps } from '@tabler/icons-react';
 
 type IconType = 'upload';
@@ -14,6 +13,5 @@ const icons: { [key in IconType]: (props: LibTablerIconsProps) => JSX.Element } 
 
 export const TablerIcon = ({ type, ...other }: TablerIconProps) => {
   const IconComponent = icons[type];
-
   return <IconComponent size={rem(18)} stroke={2} {...other} />;
 };

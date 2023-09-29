@@ -1,1 +1,0 @@
-export { MainComponent } from './ui';

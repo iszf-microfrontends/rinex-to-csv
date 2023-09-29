@@ -1,2 +1,2 @@
-export * as rinexToCsvApi from './rinex-to-csv';
+export * as api from './model';
 export * from './types';

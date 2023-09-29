@@ -7,7 +7,7 @@ export const timeStepData: { label: string; value: string }[] = timeSteps.map((t
   value: `${timeStep}`,
 }));
 
-export const navigationSystems: { type: NavigationType; label: NavigationSystem }[] = [
+export const navigationSystemData: { type: NavigationType; label: NavigationSystem }[] = [
   {
     type: NavigationType.G_SIGNALS,
     label: NavigationSystem.GPS,
@@ -30,6 +30,6 @@ export const navigationSystems: { type: NavigationType; label: NavigationSystem 
   },
 ];
 
-export const navigationMeasurements = Object.values(NavigationMeasurement);
+export const navigationMeasurementData = Object.values(NavigationMeasurement);
 
 export const fileAccept = '.rnx,.21o';

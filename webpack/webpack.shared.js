@@ -1,11 +1,12 @@
 const { merge } = require('webpack-merge');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = (options) => {
   const babelOptions = merge(
     {
       presets: ['@babel/preset-typescript'],
     },
-    options?.babelOptions ?? {},
+    options?.babelOptions || {},
   );
 
   return {
@@ -28,7 +29,8 @@ module.exports = (options) => {
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.jsx', '.js'],
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      plugins: [new TsconfigPathsPlugin()],
     },
   };
 };

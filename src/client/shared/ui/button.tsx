@@ -8,13 +8,14 @@ type ButtonProps = MantineButtonProps &
   };
 
 export const Button = ({ disabled, tooltip, ...other }: ButtonProps) => {
-  return disabled ? (
-    <Tooltip label={tooltip}>
-      <span>
-        <MantineButton disabled={disabled} {...other} />
-      </span>
-    </Tooltip>
-  ) : (
-    <MantineButton {...other} />
-  );
+  if (disabled) {
+    return (
+      <Tooltip label={tooltip}>
+        <span>
+          <MantineButton disabled={disabled} {...other} />
+        </span>
+      </Tooltip>
+    );
+  }
+  return <MantineButton {...other} />;
 };

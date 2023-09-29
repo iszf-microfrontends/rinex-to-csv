@@ -1,29 +1,27 @@
 import { MouseEvent } from 'react';
 
 import { attach, createEvent, createStore, merge, sample } from 'effector';
-
 import { combineEvents, every, reset, status } from 'patronum';
 
-import { CalculateRequestBody, NavigationOption, NavigationType, rinexToCsvApi, TimeStep } from '~client/shared/api';
-import { env } from '~client/shared/config';
-import { DownloadFileOptions, file, notification } from '~client/shared/lib';
+import { api, CalculateBody, NavigationOption, NavigationType, TimeStep } from '~client/shared/api';
+import { downloadFileFx, DownloadFileOptions, errorNotified, NotifyOptions, readFileAsArrayBufferFx } from '~client/shared/lib';
 
-const readRinexFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });
-const readNavFileAsArrayBufferFx = attach({ effect: file.readFileAsArrayBufferFx });
-const downloadFileFx = attach({ effect: file.downloadFileFx });
+const readRinexFileAsArrayBufferFx = attach({ effect: readFileAsArrayBufferFx });
+const readNavFileAsArrayBufferFx = attach({ effect: readFileAsArrayBufferFx });
+const downloadResultFx = attach({ effect: downloadFileFx });
 
-const uploadRinexFileFx = attach({ effect: rinexToCsvApi.uploadRinexFileFx });
-const uploadNavFileFx = attach({ effect: rinexToCsvApi.uploadNavFileFx });
-const calculateFx = attach({ effect: rinexToCsvApi.calculateFx });
-const getResultFx = attach({ effect: rinexToCsvApi.getResultFx });
+const uploadRinexFileFx = attach({ effect: api.uploadRinexFileFx });
+const uploadNavFileFx = attach({ effect: api.uploadNavFileFx });
+const calculateFx = attach({ effect: api.calculateFx });
+const getResultFx = attach({ effect: api.getResultFx });
 
 export const mounted = createEvent();
 
 export const rinexFileChanged = createEvent<File>();
 const rinexFileUploaded = combineEvents({ events: [rinexFileChanged, uploadRinexFileFx.doneData] });
 
-export const uploadNavFile = createEvent<File>();
-const navFileUploaded = combineEvents({ events: [uploadNavFile, uploadNavFileFx.doneData] });
+export const navFileChanged = createEvent<File>();
+const navFileUploaded = combineEvents({ events: [navFileChanged, uploadNavFileFx.doneData] });
 
 export const navigationOptionChanged = createEvent<NavigationOption>();
 
@@ -39,7 +37,7 @@ export const $rinexFileError = createStore<string | null>(null).on([rinexFileCha
 export const $isRinexFileLoading = uploadRinexFileFx.pending;
 
 export const $navFile = createStore<File | null>(null).on(navFileUploaded, (_, [file]) => file);
-export const $navFileError = createStore<string | null>(null).on([uploadNavFile, uploadNavFileFx.done], () => null);
+export const $navFileError = createStore<string | null>(null).on([navFileChanged, uploadNavFileFx.done], () => null);
 export const $isNavFileLoading = uploadNavFileFx.pending;
 
 const initialNavigationOptions: NavigationOption[] = Object.values(NavigationType).map((type) => ({ type, measurements: [] }));
@@ -55,7 +53,7 @@ const $calculateStatus = status({ effect: calculateFx }).reset([formChanged, mou
 export const $isCalculating = $calculateStatus.map((status) => status === 'pending');
 
 export const $isDownloadResultDisabled = $calculateStatus.map((status) => status !== 'done');
-export const $isResultDownloading = downloadFileFx.pending;
+export const $isResultDownloading = downloadResultFx.pending;
 
 const $formValid = every({ stores: [$rinexFileError, $navFileError, $navigationOptionsError, $timeStepError], predicate: null });
 
@@ -79,13 +77,14 @@ sample({
 
 sample({
   clock: uploadRinexFileFx.fail,
-  target: notification.showError.prepend(() => ({
+  fn: (): NotifyOptions => ({
     title: 'Ошибка!',
     message: 'Произошла ошибка при загрузке rinex файла',
-  })),
+  }),
+  target: errorNotified,
 });
 
-sample({ clock: uploadNavFile, target: readNavFileAsArrayBufferFx });
+sample({ clock: navFileChanged, target: readNavFileAsArrayBufferFx });
 
 sample({
   clock: readNavFileAsArrayBufferFx.doneData,
@@ -100,10 +99,11 @@ sample({
 
 sample({
   clock: uploadNavFileFx.fail,
-  target: notification.showError.prepend(() => ({
+  fn: (): NotifyOptions => ({
     title: 'Ошибка!',
     message: 'Произошла ошибка при загрузке nav файла',
-  })),
+  }),
+  target: errorNotified,
 });
 
 sample({ clock: downloadResultPressed, target: getResultFx });
@@ -111,7 +111,7 @@ sample({ clock: downloadResultPressed, target: getResultFx });
 sample({
   clock: getResultFx.doneData,
   fn: (responder): DownloadFileOptions => ({ output: `rinex-to-csv.zip`, content: responder.data }),
-  target: downloadFileFx,
+  target: downloadResultFx,
 });
 
 sample({
@@ -172,37 +172,38 @@ sample({
     return {
       ...result,
       timestep: timeStep,
-    } as CalculateRequestBody;
+    } as CalculateBody;
   },
   target: calculateFx,
 });
 
 sample({
   clock: calculateFx.fail,
-  target: notification.showError.prepend(() => ({
+  fn: (): NotifyOptions => ({
     title: 'Ошибка!',
     message: 'Произошла ошибка при расчете координат',
-  })),
+  }),
+  target: errorNotified,
 });
 
-if (env.IS_DEV) {
+if (__DEV__) {
   $rinexFile.watch((value) => {
-    console.log(`rinexFile state: ${value?.name}`);
+    console.log(`rinexFile ${value?.name}`);
   });
 
   $navFile.watch((value) => {
-    console.log(`navFile state: ${value?.name}`);
+    console.log(`navFile ${value?.name}`);
   });
 
   $timeStep.watch((value) => {
-    console.log(`timeStep state: ${value}`);
+    console.log(`timeStep ${value}`);
   });
 
   $timeStepError.watch((value) => {
-    console.log(`timeStepError state: ${value}`);
+    console.log(`timeStepError ${value}`);
   });
 
   $navigationOptions.watch((value) => {
-    console.log(`navigationOptions state: ${JSON.stringify(value)}`);
+    console.log(`navigationOptions ${JSON.stringify(value)}`);
   });
 }

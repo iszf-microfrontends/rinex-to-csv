@@ -32,7 +32,7 @@ export type UploadRinexResponse = {
 
 export type UploadNavResponse = UploadRinexResponse;
 
-export type CalculateRequestBody = {
+export type CalculateBody = {
   [NavigationType.G_SIGNALS]: NavigationMeasurement[];
   [NavigationType.R_SIGNALS]: NavigationMeasurement[];
   [NavigationType.E_SIGNALS]: NavigationMeasurement[];

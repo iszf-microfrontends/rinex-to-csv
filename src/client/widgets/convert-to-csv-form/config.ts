@@ -1,13 +1,13 @@
-import { NavigationMeasurement, NavigationSystem, NavigationType, TimeStep } from '~client/shared/api';
+import { NavigationMeasurement, NavigationSystem, NavigationType, type TimeStep } from '~client/shared/api';
 
 export const timeSteps: TimeStep[] = [10, 30, 60, 120];
 
-export const timeStepData: { label: string; value: string }[] = timeSteps.map((timeStep) => ({
+export const timeStepData: Array<{ label: string; value: string }> = timeSteps.map((timeStep) => ({
   label: `${timeStep} сек.`,
   value: `${timeStep}`,
 }));
 
-export const navigationSystemData: { type: NavigationType; label: NavigationSystem }[] = [
+export const navigationSystemData: Array<{ type: NavigationType; label: NavigationSystem }> = [
   {
     type: NavigationType.G_SIGNALS,
     label: NavigationSystem.GPS,

@@ -23,20 +23,23 @@ export enum NavigationType {
   S_SIGNALS = 's_signals',
 }
 
-export type NavigationOption = { type: NavigationType; measurements: NavigationMeasurement[] };
+export interface NavigationOption {
+  type: NavigationType;
+  measurements: NavigationMeasurement[];
+}
 
-export type UploadRinexResponse = {
+export interface UploadRinexResponse {
   filename: string;
   proc_id: string;
-};
+}
 
-export type UploadNavResponse = UploadRinexResponse;
+export interface UploadNavResponse extends UploadRinexResponse {}
 
-export type CalculateBody = {
+export interface CalculateBody {
   [NavigationType.G_SIGNALS]: NavigationMeasurement[];
   [NavigationType.R_SIGNALS]: NavigationMeasurement[];
   [NavigationType.E_SIGNALS]: NavigationMeasurement[];
   [NavigationType.C_SIGNALS]: NavigationMeasurement[];
   [NavigationType.S_SIGNALS]: NavigationMeasurement[];
   timestep: TimeStep;
-};
+}

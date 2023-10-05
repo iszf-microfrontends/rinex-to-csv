@@ -38,6 +38,11 @@ module.exports = (env) => {
         port: config.PORT,
         hot: true,
       },
+      performance: {
+        hints: false,
+        maxEntrypointSize: 512000,
+        maxAssetSize: 512000,
+      },
       plugins: [
         new ModuleFederationPlugin({
           name: config.APP_NAME,
@@ -54,18 +59,6 @@ module.exports = (env) => {
             'react-dom': {
               singleton: true,
               requiredVersion: pkg.dependencies['react-dom'],
-            },
-            '@emotion/react': {
-              singleton: true,
-            },
-            '@mantine/core': {
-              singleton: true,
-            },
-            '@mantine/hooks': {
-              singleton: true,
-            },
-            '@mantine/notifications': {
-              singleton: true,
             },
           },
         }),

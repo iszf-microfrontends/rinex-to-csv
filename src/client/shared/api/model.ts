@@ -1,9 +1,9 @@
 import { createEffect } from 'effector';
 
-import { request, Responder } from './request';
-import { CalculateBody, UploadNavResponse, UploadRinexResponse } from './types';
+import { request, type Responder } from './request';
+import { type CalculateBody, type UploadNavResponse, type UploadRinexResponse } from './types';
 
-export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexResponse>>((formData) =>
+export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexResponse>>(async (formData) =>
   request({
     path: 'upload_rinex',
     method: 'POST',
@@ -13,7 +13,7 @@ export const uploadRinexFileFx = createEffect<FormData, Responder<UploadRinexRes
   }),
 );
 
-export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavResponse>>((formData) =>
+export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavResponse>>(async (formData) =>
   request({
     path: 'upload_nav',
     method: 'POST',
@@ -23,7 +23,7 @@ export const uploadNavFileFx = createEffect<FormData, Responder<UploadNavRespons
   }),
 );
 
-export const calculateFx = createEffect<CalculateBody, Responder<unknown>>((body) =>
+export const calculateFx = createEffect<CalculateBody, Responder<unknown>>(async (body) =>
   request({
     path: 'run',
     method: 'POST',
@@ -32,6 +32,6 @@ export const calculateFx = createEffect<CalculateBody, Responder<unknown>>((body
   }),
 );
 
-export const getResultFx = createEffect<void, Responder<ArrayBuffer>>(() =>
+export const getResultFx = createEffect<void, Responder<ArrayBuffer>>(async () =>
   request({ path: 'get_result', method: 'GET', responseType: 'arraybuffer' }),
 );

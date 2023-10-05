@@ -1,10 +1,10 @@
-import { NotificationProps, notifications } from '@mantine/notifications';
+import { notifications, type NotificationProps } from '@mantine/notifications';
 import { attach, createEffect, createEvent, sample } from 'effector';
 
-export type NotifyOptions = {
+export interface NotifyOptions {
   title?: string;
   message: string;
-};
+}
 
 const notifyFx = createEffect<NotificationProps, void>((props) => {
   notifications.show({ withBorder: true, ...props });

@@ -1,10 +1,10 @@
-import { MouseEvent } from 'react';
-
 import { attach, createEvent, createStore, merge, sample } from 'effector';
 import { combineEvents, every, reset, status } from 'patronum';
+import { type MouseEvent } from 'react';
 
-import { api, CalculateBody, NavigationOption, NavigationType, TimeStep } from '~client/shared/api';
-import { downloadFileFx, DownloadFileOptions, errorNotified, NotifyOptions, readFileAsArrayBufferFx } from '~client/shared/lib';
+import { api, NavigationType } from '~client/shared/api';
+import { type CalculateBody, type NavigationOption, type TimeStep } from '~client/shared/api';
+import { downloadFileFx, errorNotified, readFileAsArrayBufferFx, type DownloadFileOptions, type NotifyOptions } from '~client/shared/lib';
 
 const readRinexFileAsArrayBufferFx = attach({ effect: readFileAsArrayBufferFx });
 const readNavFileAsArrayBufferFx = attach({ effect: readFileAsArrayBufferFx });

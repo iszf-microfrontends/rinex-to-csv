@@ -4,24 +4,24 @@ export type ContentType = 'application/json' | 'multipart/form-data' | 'auto';
 
 export type ResponseType = 'json' | 'arraybuffer' | 'stream';
 
-export type RequestOptions<T> = {
+export interface RequestOptions<T> {
   path: string;
   method: 'POST' | 'GET' | 'DELETE' | 'PUT' | 'PATCH';
   body?: T;
   headers?: Record<string, string>;
   contentType?: ContentType;
   responseType?: ResponseType;
-};
+}
 
-export type Responder<T> = {
+export interface Responder<T> {
   ok: boolean;
   data: T;
   status: number;
-};
+}
 
-const contentIs = (headers: Headers, type: ContentType) => headers.get('Content-Type') === type;
+const contentIs = (headers: Headers, type: ContentType): boolean => headers.get('Content-Type') === type;
 
-const parseResponse = (response: Response, type: ResponseType) => {
+const parseResponse = async <T extends ResponseType>(response: Response, type: T): Promise<any> => {
   if (type === 'stream') {
     return response.text();
   }
@@ -31,9 +31,9 @@ const parseResponse = (response: Response, type: ResponseType) => {
   return response.json();
 };
 
-export const request = async <B = unknown, D = unknown>(options: RequestOptions<B>) => {
+export const request = async <B = unknown, D = unknown>(options: RequestOptions<B>): Promise<Responder<D>> => {
   const headers = new Headers({
-    'Content-Type': options.contentType || 'application/json',
+    'Content-Type': options.contentType ?? 'application/json',
     ...options.headers,
   });
   if (options.contentType === 'auto') {
@@ -48,7 +48,7 @@ export const request = async <B = unknown, D = unknown>(options: RequestOptions<
     credentials: 'include',
   });
 
-  const data: D = await parseResponse(response, options.responseType || 'json');
+  const data: D = await parseResponse(response, options.responseType ?? 'json');
   const responder: Responder<D> = {
     ok: response.ok,
     data,
@@ -58,5 +58,6 @@ export const request = async <B = unknown, D = unknown>(options: RequestOptions<
   if (!responder.ok) {
     throw responder;
   }
+
   return responder;
 };

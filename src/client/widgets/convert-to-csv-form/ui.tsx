@@ -1,11 +1,7 @@
-import { useEffect } from 'react';
-
-import { FileInput } from '@iszf-microfrontends/shared-ui';
+import { FileInput, Icon, Button } from '@iszf-microfrontends/shared-ui';
 import { Box, Checkbox, Group, Select, Stack, Text } from '@mantine/core';
 import { useUnit } from 'effector-react';
-
-import { NavigationMeasurement, NavigationOption, NavigationType, TimeStep } from '~client/shared/api';
-import { Button, TablerIcon } from '~client/shared/ui';
+import { useEffect } from 'react';
 
 import { fileAccept, navigationMeasurementData, navigationSystemData, timeStepData } from './config';
 import {
@@ -31,7 +27,9 @@ import {
   timeStepChanged,
 } from './model';
 
-const RinexFileInput = () => {
+import { type NavigationMeasurement, type NavigationOption, type NavigationType, type TimeStep } from '~client/shared/api';
+
+const RinexFileInput = (): JSX.Element => {
   const [rinexFile, rinexFileError, isRinexFileLoading] = useUnit([$rinexFile, $rinexFileError, $isRinexFileLoading]);
 
   return (
@@ -40,7 +38,7 @@ const RinexFileInput = () => {
       accept={fileAccept}
       label="Файл rinex"
       placeholder="Загрузить файл"
-      icon={<TablerIcon type="upload" />}
+      icon={<Icon type="upload" />}
       value={rinexFile}
       error={rinexFileError}
       loading={isRinexFileLoading}
@@ -53,7 +51,7 @@ const RinexFileInput = () => {
   );
 };
 
-const NavFileInput = () => {
+const NavFileInput = (): JSX.Element => {
   const [navFile, navFileError, isNavFileLoading] = useUnit([$navFile, $navFileError, $isNavFileLoading]);
 
   return (
@@ -62,7 +60,7 @@ const NavFileInput = () => {
       accept={fileAccept}
       label="Файл nav"
       placeholder="Загрузить файл"
-      icon={<TablerIcon type="upload" />}
+      icon={<Icon type="upload" />}
       value={navFile}
       error={navFileError}
       loading={isNavFileLoading}
@@ -75,7 +73,7 @@ const NavFileInput = () => {
   );
 };
 
-const NavigationSystemCheckboxGroups = () => {
+const NavigationSystemCheckboxGroups = (): JSX.Element => {
   const [navigationOptions, navigationOptionsError] = useUnit([$navigationOptions, $navigationOptionsError]);
 
   const findNavigationOptionByType = (type: NavigationType): NavigationOption | undefined =>
@@ -113,7 +111,7 @@ const NavigationSystemCheckboxGroups = () => {
   );
 };
 
-const TimeStepSelect = () => {
+const TimeStepSelect = (): JSX.Element => {
   const [timeStep, timeStepError] = useUnit([$timeStep, $timeStepError]);
 
   return (
@@ -133,7 +131,7 @@ const TimeStepSelect = () => {
   );
 };
 
-const DownloadResult = () => {
+const DownloadResult = (): JSX.Element => {
   const [isDownloadResultDisabled, isResultDownloading] = useUnit([$isDownloadResultDisabled, $isResultDownloading]);
 
   return (
@@ -148,7 +146,7 @@ const DownloadResult = () => {
   );
 };
 
-export const ConvertToCsvForm = () => {
+export const ConvertToCsvForm = (): JSX.Element => {
   const [isCalculating] = useUnit([$isCalculating]);
 
   useEffect(() => {

@@ -8,10 +8,10 @@ export const readFileAsArrayBufferFx = createEffect<File, { file: File; arrayBuf
   };
 });
 
-export type DownloadFileOptions = {
+export interface DownloadFileOptions {
   output: string;
   content: ArrayBuffer;
-};
+}
 
 export const downloadFileFx = createEffect<DownloadFileOptions, void>((options) => {
   const blob = new Blob([options.content], { type: 'application/octet-stream' });

@@ -12,5 +12,8 @@ module.exports = merge(sharedConfig(), {
   output: {
     path: path.resolve(__dirname, '../dist/server'),
   },
+  externals: {
+    express: "require('express')",
+  },
   plugins: [new NodePolyfillPlugin(), new DotenvPlugin()],
 });

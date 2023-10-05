@@ -1,8 +1,9 @@
-import express from 'express';
-import fetch from 'node-fetch';
 import path from 'path';
 
-const PORT = process.env.PORT || 9001;
+import express from 'express';
+import fetch from 'node-fetch';
+
+const PORT = process.env.PORT;
 const APP_NAME = process.env.APP_NAME;
 const DOMAIN = process.env.DOMAIN;
 const BACKEND_NAME = process.env.BACKEND_NAME;
@@ -14,7 +15,7 @@ const app = express();
 
 app.use(express.static(DIST_PATH));
 
-const connectToMCS = async () => {
+const connectToMCS = async (): Promise<void> => {
   try {
     const body = JSON.stringify({
       name: APP_NAME,
@@ -34,19 +35,19 @@ const connectToMCS = async () => {
       console.log('Successfully connected to MCS');
     } else {
       console.log(`Failed connecting to MCS. Status: ${response.status}`);
-      setTimeout(() => connectToMCS(), MCS_RECONNECT_DELAY);
+      setTimeout(async () => connectToMCS(), MCS_RECONNECT_DELAY);
     }
   } catch (error) {
     console.log(`Failed connecting to MCS: ${error}`);
-    setTimeout(() => connectToMCS(), MCS_RECONNECT_DELAY);
+    setTimeout(async () => connectToMCS(), MCS_RECONNECT_DELAY);
   }
 };
 
-const bootstrap = () => {
+const bootstrap = (): void => {
   try {
-    app.listen(PORT, () => {
+    app.listen(PORT, async () => {
       console.log(`App is running on port ${PORT}`);
-      connectToMCS();
+      await connectToMCS();
     });
   } catch (error) {
     console.error(`Failed to start app: ${error}`);

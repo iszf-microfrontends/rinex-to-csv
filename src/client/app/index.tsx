@@ -3,7 +3,7 @@ import { Notifications } from '@mantine/notifications';
 
 import Content from '~client/content';
 
-export const App = () => (
+export const App = (): JSX.Element => (
   <MantineProvider withNormalizeCSS>
     <Notifications />
     <Box p="xl">

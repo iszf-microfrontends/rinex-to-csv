@@ -1,4 +1,4 @@
-import { BACKEND_URL } from '~client/shared/config';
+import { BACKEND_URL } from '~/shared/config';
 
 export type ContentType = 'application/json' | 'multipart/form-data' | 'auto';
 

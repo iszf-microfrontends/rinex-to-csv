@@ -3,6 +3,8 @@ import { Box, Checkbox, Group, Select, Stack, Text } from '@mantine/core';
 import { useUnit } from 'effector-react';
 import { useEffect } from 'react';
 
+import { type NavigationMeasurement, type NavigationOption, type NavigationType, type TimeStep } from '~/shared/api';
+
 import { fileAccept, navigationMeasurementData, navigationSystemData, timeStepData } from './config';
 import {
   $isCalculating,
@@ -26,8 +28,6 @@ import {
   rinexFileChanged,
   timeStepChanged,
 } from './model';
-
-import { type NavigationMeasurement, type NavigationOption, type NavigationType, type TimeStep } from '~client/shared/api';
 
 const RinexFileInput = (): JSX.Element => {
   const [rinexFile, rinexFileError, isRinexFileLoading] = useUnit([$rinexFile, $rinexFileError, $isRinexFileLoading]);

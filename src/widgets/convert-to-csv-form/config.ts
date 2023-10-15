@@ -1,4 +1,4 @@
-import { NavigationMeasurement, NavigationSystem, NavigationType, type TimeStep } from '~client/shared/api';
+import { NavigationMeasurement, NavigationSystem, NavigationType, type TimeStep } from '~/shared/api';
 
 export const timeSteps: TimeStep[] = [10, 30, 60, 120];
 

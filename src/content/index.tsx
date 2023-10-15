@@ -1,4 +1,4 @@
-import { ConvertToCsvForm } from '~client/widgets/convert-to-csv-form';
+import { ConvertToCsvForm } from '~/widgets/convert-to-csv-form';
 
 const Content = (): JSX.Element => <ConvertToCsvForm />;
 

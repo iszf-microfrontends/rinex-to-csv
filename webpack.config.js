@@ -13,8 +13,8 @@ module.exports = () => {
   const isDev = process.env.NODE_ENV === 'development';
 
   const babelOptions = {
-    plugins: [isDev && require.resolve('react-refresh/babel')].filter(Boolean),
-    presets: [['@babel/preset-react', { runtime: 'automatic' }], '@babel/preset-typescript'],
+    plugins: [isDev && require.resolve('react-refresh/babel'), 'effector/babel-plugin'].filter(Boolean),
+    presets: [['@babel/preset-react', { runtime: 'automatic' }], '@babel/preset-typescript', 'patronum/babel-preset'],
   };
 
   const devPlugins = [];
